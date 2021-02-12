@@ -1,4 +1,5 @@
-﻿using SigClient4;
+﻿using Cysharp.Threading.Tasks;
+using SigClient4;
 using UnityEngine;
 
 namespace Assets.Scripts
@@ -7,10 +8,10 @@ namespace Assets.Scripts
     {
         private SignalRClientContext _clientContext;
         // Start is called before the first frame update
-        void Start()
+        async UniTask Start()
         {
-            _clientContext = new SignalRClientContext();
-            _clientContext.ReceivedMessage += OnMessageReceived;
+            _clientContext = await SignalRClientContext.Create();
+            SignalRClientContext.ReceivedMessage += OnMessageReceived;
         }
 
         void Update()
@@ -28,7 +29,7 @@ namespace Assets.Scripts
 
         private void OnDestroy()
         {
-            _clientContext.ReceivedMessage -= OnMessageReceived;
+            SignalRClientContext.ReceivedMessage -= OnMessageReceived;
             _clientContext.Dispose();
         }
     }
