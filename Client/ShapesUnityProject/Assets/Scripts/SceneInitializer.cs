@@ -10,8 +10,8 @@ namespace Assets.Scripts
         // Start is called before the first frame update
         async UniTask Start()
         {
-            _clientContext = await SignalRClientContext.Create();
-            SignalRClientContext.ReceivedMessage += OnMessageReceived;
+            _clientContext = await SignalRClientContext.CreateInstance();
+            SignalRClientContext.Instance.ReceivedMessage += OnMessageReceived;
         }
 
         void Update()
@@ -29,7 +29,7 @@ namespace Assets.Scripts
 
         private void OnDestroy()
         {
-            SignalRClientContext.ReceivedMessage -= OnMessageReceived;
+            SignalRClientContext.Instance.ReceivedMessage -= OnMessageReceived;
             _clientContext.Dispose();
         }
     }

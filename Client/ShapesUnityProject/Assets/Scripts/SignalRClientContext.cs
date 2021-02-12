@@ -8,27 +8,27 @@ namespace Assets.Scripts
 {
     public class SignalRClientContext : IDisposable
     {
-        public static EventHandler<MessageArgs> ReceivedMessage = delegate { };
+        public EventHandler<MessageArgs> ReceivedMessage = delegate { };
         private static HubConnection _hubConnection;
         private static IHubProxy _chatHub;
         private static IDisposable _messageProxy;
         private static SignalRClientContext _instance;
+
         private SignalRClientContext()
         {
-            // _hubConnection = new HubConnection("http://localhost:8080/chatHub");
-            // _chatHub = _hubConnection.CreateHubProxy("ChatHub");
-            // _messageProxy = _chatHub.On<string, string>("SendMessageToClient", MessageFromServer);
-            // _hubConnection.Start().ConfigureAwait(false);
         }
 
-        public static async UniTask<SignalRClientContext> Create()
+        public static SignalRClientContext Instance => _instance;
+
+        public static async UniTask<SignalRClientContext> CreateInstance()
         {
-            if (_instance != null) return _instance;
+            if (Instance != null) return Instance;
+            _instance = new SignalRClientContext();
             _hubConnection = new HubConnection("http://localhost:8080/chatHub");
             _chatHub = _hubConnection.CreateHubProxy("ChatHub");
-            _messageProxy = _chatHub.On<string, string>("SendMessageToClient", MessageFromServer);
             await _hubConnection.Start().ConfigureAwait(false);
-            _instance = new SignalRClientContext();
+            _messageProxy = _chatHub.On<string, string>("SendMessageToClient", _instance.MessageFromServer);
+
             return _instance;
         }
 
@@ -37,9 +37,9 @@ namespace Assets.Scripts
             return _chatHub.Invoke("SendMessage", new object[] {name, message});
         }
 
-        private static void MessageFromServer(string name, string message)
+        private void MessageFromServer(string name, string message)
         {
-            ReceivedMessage.Invoke(_instance, new MessageArgs() {Message = message, Name = name});
+            ReceivedMessage.Invoke(Instance, new MessageArgs() {Message = message, Name = name});
         }
 
         public void Dispose()

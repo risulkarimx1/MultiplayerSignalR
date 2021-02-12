@@ -712,7 +712,7 @@
         </member>
         <member name="M:Microsoft.AspNet.SignalR.Client.SignalRError.#ctor(System.Exception)">
             <summary>
-            Create custom SignalR based error.
+            CreateInstance custom SignalR based error.
             </summary>
             <param name="exception">The exception to unwrap</param>
         </member>

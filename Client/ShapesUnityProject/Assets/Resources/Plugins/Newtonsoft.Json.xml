@@ -1173,7 +1173,7 @@
         </member>
         <member name="T:Newtonsoft.Json.Converters.CustomCreationConverter`1">
             <summary>
-            Create a custom object
+            CreateInstance a custom object
             </summary>
             <typeparam name="T">The object type to convert.</typeparam>
         </member>
@@ -1195,7 +1195,7 @@
             <param name="serializer">The calling serializer.</param>
             <returns>The object value.</returns>
         </member>
-        <member name="M:Newtonsoft.Json.Converters.CustomCreationConverter`1.Create(System.Type)">
+        <member name="M:Newtonsoft.Json.Converters.CustomCreationConverter`1.CreateInstance(System.Type)">
             <summary>
             Creates an object which will then be populated by the serializer.
             </summary>
@@ -2581,7 +2581,7 @@
             Default settings are automatically used by serialization methods on <see cref="T:Newtonsoft.Json.JsonConvert"/>,
             and <see cref="M:Newtonsoft.Json.Linq.JToken.ToObject``1"/> and <see cref="M:Newtonsoft.Json.Linq.JToken.FromObject(System.Object)"/> on <see cref="T:Newtonsoft.Json.Linq.JToken"/>.
             To serialize without using any default settings create a <see cref="T:Newtonsoft.Json.JsonSerializer"/> with
-            <see cref="M:Newtonsoft.Json.JsonSerializer.Create"/>.
+            <see cref="M:Newtonsoft.Json.JsonSerializer.CreateInstance"/>.
             </summary>
         </member>
         <member name="T:Newtonsoft.Json.JsonConverterAttribute">
@@ -2917,7 +2917,7 @@
             Initializes a new instance of the <see cref="T:Newtonsoft.Json.JsonSerializer"/> class.
             </summary>
         </member>
-        <member name="M:Newtonsoft.Json.JsonSerializer.Create">
+        <member name="M:Newtonsoft.Json.JsonSerializer.CreateInstance">
             <summary>
             Creates a new <see cref="T:Newtonsoft.Json.JsonSerializer"/> instance.
             The <see cref="T:Newtonsoft.Json.JsonSerializer"/> will not use default settings.
@@ -2927,7 +2927,7 @@
             The <see cref="T:Newtonsoft.Json.JsonSerializer"/> will not use default settings.
             </returns>
         </member>
-        <member name="M:Newtonsoft.Json.JsonSerializer.Create(Newtonsoft.Json.JsonSerializerSettings)">
+        <member name="M:Newtonsoft.Json.JsonSerializer.CreateInstance(Newtonsoft.Json.JsonSerializerSettings)">
             <summary>
             Creates a new <see cref="T:Newtonsoft.Json.JsonSerializer"/> instance using the specified <see cref="T:Newtonsoft.Json.JsonSerializerSettings"/>.
             The <see cref="T:Newtonsoft.Json.JsonSerializer"/> will not use default settings.
@@ -6071,7 +6071,7 @@
             </summary>
             <param name="rawJson">The raw json.</param>
         </member>
-        <member name="M:Newtonsoft.Json.Linq.JRaw.Create(Newtonsoft.Json.JsonReader)">
+        <member name="M:Newtonsoft.Json.Linq.JRaw.CreateInstance(Newtonsoft.Json.JsonReader)">
             <summary>
             Creates an instance of <see cref="T:Newtonsoft.Json.Linq.JRaw"/> with the content of the reader's current token.
             </summary>
