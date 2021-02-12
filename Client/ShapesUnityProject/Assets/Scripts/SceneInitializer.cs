@@ -1,4 +1,5 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using System;
+using Cysharp.Threading.Tasks;
 using SigClient4;
 using UnityEngine;
 
@@ -8,9 +9,13 @@ namespace Assets.Scripts
     {
         private SignalRClientContext _clientContext;
         // Start is called before the first frame update
-        async UniTask Start()
+        async UniTask Awake()
         {
             _clientContext = await SignalRClientContext.CreateInstance();
+        }
+
+        private void Start()
+        {
             SignalRClientContext.Instance.ReceivedMessage += OnMessageReceived;
         }
 
@@ -19,6 +24,11 @@ namespace Assets.Scripts
             if (Input.GetKeyDown(KeyCode.I))
             {
                 _clientContext.SendMessageAsync("risul", "from unity");
+            }
+
+            if (Input.GetKeyDown(KeyCode.L))
+            {
+                _clientContext.RequestToLock();
             }
         }
 
