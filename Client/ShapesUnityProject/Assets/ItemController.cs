@@ -5,37 +5,35 @@ using UnityEngine;
 
 public class ItemController : MonoBehaviour
 {
-    private Vector3 screenPoint;
-    private Vector3 offset;
+    private Vector3 _screenPoint;
+    private Vector3 _offset;
+    
     private bool _canMove = true;
-    // Start is called before the first frame update
-
-    private IDisposable positionChange;
+    private IDisposable _positionChangeStream;
+    private Camera _mainCamera;
 
     private void Start()
     {
+        _mainCamera = Camera.main;
         SignalRClientContext.Instance.PositionUpdated += OnPositionUpdated;
         SignalRClientContext.Instance.LockStateUpdated += OnLockStateUpdated;
     }
 
     private void OnPositionUpdated(object sender, PositionUpdateArgs e)
     {
-        UnityMainThreadDispatcher.Instance().Enqueue(()=>
-        {
-            transform.position = e.Position;
-        });
+        UnityMainThreadDispatcher.Instance().Enqueue(() => { transform.position = e.Position; });
     }
 
     private void Update()
     {
         if (Input.GetMouseButton(0))
         {
-            SignalRClientContext.Instance.RequestToLock();
+            SignalRClientContext.Instance.TryLock();
         }
 
         if (Input.GetMouseButtonUp(0))
         {
-            SignalRClientContext.Instance.ReleaseLock();
+            SignalRClientContext.Instance.ReleaseLockToServer();
         }
     }
 
@@ -46,15 +44,13 @@ public class ItemController : MonoBehaviour
         if (_canMove)
         {
             OnMouseDown();
-            positionChange  = transform.ObserveEveryValueChanged(x => x.position).Subscribe(p =>
-            {
-                SignalRClientContext.Instance.UpdatePositionInServer(p);
-            }).AddTo(this);
-            SignalRClientContext.Instance.LockStateUpdated += OnLockStateUpdated;
+            _positionChangeStream?.Dispose();
+            _positionChangeStream = transform.ObserveEveryValueChanged(t => t.position)
+                .Subscribe(p => { SignalRClientContext.Instance.SetPositionToServer(p); }).AddTo(this);
         }
         else
         {
-            positionChange?.Dispose();
+            _positionChangeStream?.Dispose();
         }
     }
 
@@ -62,19 +58,21 @@ public class ItemController : MonoBehaviour
     void OnMouseDown()
     {
         if (_canMove == false) return;
-        
-        screenPoint = Camera.main.WorldToScreenPoint(gameObject.transform.position);
-        offset = gameObject.transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z));
+
+        _screenPoint = Camera.main.WorldToScreenPoint(gameObject.transform.position);
+        _offset = gameObject.transform.position -
+                  _mainCamera.ScreenToWorldPoint(
+                     new Vector3(Input.mousePosition.x, Input.mousePosition.y, _screenPoint.z));
     }
 
     void OnMouseDrag()
     {
-        if(_canMove == false) return;
-        
-        Vector3 cursorPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z);
-        Vector3 cursorPosition = Camera.main.ScreenToWorldPoint(cursorPoint) + offset;
+        if (_canMove == false) return;
+
+        Vector3 cursorPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, _screenPoint.z);
+        Vector3 cursorPosition = _mainCamera.ScreenToWorldPoint(cursorPoint) + _offset;
         transform.position = cursorPosition;
-        SignalRClientContext.Instance.UpdatePositionInServer(transform.position);
+        SignalRClientContext.Instance.SetPositionToServer(transform.position);
     }
 
     private void OnDestroy()

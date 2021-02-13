@@ -1,6 +1,4 @@
-﻿// using SignalRClient;
-
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using Microsoft.AspNet.SignalR.Client;
 using SigClient4;
