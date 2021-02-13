@@ -18,7 +18,7 @@ namespace Assets.Scripts
         private static bool _hasLock = false;
 
         private SignalRClientContext()
-        { 
+        {
         }
 
         public static SignalRClientContext Instance => _instance;
@@ -30,38 +30,40 @@ namespace Assets.Scripts
             _hubConnection = new HubConnection("http://localhost:8080/boards");
             _hub = _hubConnection.CreateHubProxy("BoardHub");
             await _hubConnection.Start().ConfigureAwait(false);
-            _positionUpdateStream = _hub.On<float, float, float>("SendPositionFromServer", _instance.GetPositionFromServer);
+            _positionUpdateStream =
+                _hub.On<float, float, float>("SendPositionFromServer", _instance.GetPositionFromServer);
             _lockStream = _hub.On<bool>("SendLockStatuesFromServer", _instance.GetLockStatusFromServer);
             return _instance;
         }
 
-        public void TryLock()
+        public async UniTask TryLock()
         {
-            if(_hasLock) return;
-            
-             _hub.Invoke(nameof(TryLock));
+            if (_hasLock) return;
+
+            await _hub.Invoke(nameof(TryLock)).ConfigureAwait(false);
         }
 
         private void GetLockStatusFromServer(bool acquiredLock)
         {
             _hasLock = acquiredLock;
-            LockStateUpdated.Invoke(Instance, new LockArgs() { AcruiredLock = acquiredLock });
+            LockStateUpdated.Invoke(Instance, new LockArgs() {AcruiredLock = acquiredLock});
         }
 
-        public void ReleaseLockToServer()
+        public async UniTask ReleaseLockToServer()
         {
-            _hub.Invoke(nameof(ReleaseLockToServer));
+            await _hub.Invoke(nameof(ReleaseLockToServer)).ConfigureAwait(false);
             _hasLock = false;
         }
 
         private void GetPositionFromServer(float x, float y, float z)
         {
-            PositionUpdated.Invoke(Instance, new PositionUpdateArgs() { Position = new Vector3(x, y, z) });
+            PositionUpdated.Invoke(Instance, new PositionUpdateArgs() {Position = new Vector3(x, y, z)});
         }
 
-        public void SetPositionToServer(Vector3 vector3)
+        public async UniTask SetPositionToServer(Vector3 vector3)
         {
-            _hub.Invoke(nameof(SetPositionToServer), new object[] { vector3.x, vector3.y, vector3.z});
+            await _hub.Invoke(nameof(SetPositionToServer), new object[] {vector3.x, vector3.y, vector3.z})
+                .ConfigureAwait(false);
         }
 
         public void Dispose()

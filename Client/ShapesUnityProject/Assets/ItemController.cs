@@ -7,7 +7,7 @@ public class ItemController : MonoBehaviour
 {
     private Vector3 _screenPoint;
     private Vector3 _offset;
-    
+
     private bool _canMove = true;
     private IDisposable _positionChangeStream;
     private Camera _mainCamera;
@@ -28,12 +28,12 @@ public class ItemController : MonoBehaviour
     {
         if (Input.GetMouseButton(0))
         {
-            SignalRClientContext.Instance.TryLock();
+            _ = SignalRClientContext.Instance.TryLock();
         }
 
         if (Input.GetMouseButtonUp(0))
         {
-            SignalRClientContext.Instance.ReleaseLockToServer();
+            _ = SignalRClientContext.Instance.ReleaseLockToServer();
         }
     }
 
@@ -46,7 +46,7 @@ public class ItemController : MonoBehaviour
             OnMouseDown();
             _positionChangeStream?.Dispose();
             _positionChangeStream = transform.ObserveEveryValueChanged(t => t.position)
-                .Subscribe(p => { SignalRClientContext.Instance.SetPositionToServer(p); }).AddTo(this);
+                .Subscribe(async p => { await SignalRClientContext.Instance.SetPositionToServer(p); }).AddTo(this);
         }
         else
         {
@@ -59,20 +59,19 @@ public class ItemController : MonoBehaviour
     {
         if (_canMove == false) return;
 
-        _screenPoint = Camera.main.WorldToScreenPoint(gameObject.transform.position);
-        _offset = gameObject.transform.position -
-                  _mainCamera.ScreenToWorldPoint(
-                     new Vector3(Input.mousePosition.x, Input.mousePosition.y, _screenPoint.z));
+        var position = transform.position;
+        _screenPoint = _mainCamera.WorldToScreenPoint(position);
+        _offset = position - _mainCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, _screenPoint.z));
     }
 
     void OnMouseDrag()
     {
         if (_canMove == false) return;
 
-        Vector3 cursorPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, _screenPoint.z);
-        Vector3 cursorPosition = _mainCamera.ScreenToWorldPoint(cursorPoint) + _offset;
+        var cursorPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, _screenPoint.z);
+        var cursorPosition = _mainCamera.ScreenToWorldPoint(cursorPoint) + _offset;
         transform.position = cursorPosition;
-        SignalRClientContext.Instance.SetPositionToServer(transform.position);
+        _ =SignalRClientContext.Instance.SetPositionToServer(transform.position);
     }
 
     private void OnDestroy()
