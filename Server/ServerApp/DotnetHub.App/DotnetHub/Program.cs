@@ -10,6 +10,7 @@ namespace DotnetHub
 {
     class Program
     {
+        public static bool IsLocked = false;
         static void Main(string[] args)
         {
             // This will *ONLY* bind to localhost, if you want to bind to all addresses
@@ -81,10 +82,12 @@ namespace DotnetHub
 
         public async Task TryLock()
         {
-            var isLocked = LockDataContext.IsLocked();
+            //var isLocked = LockDataContext.IsLocked();
+            var isLocked = Program.IsLocked;
             if (isLocked == false)
             {
-                LockDataContext.SetLockState(true);
+                //LockDataContext.SetLockState(true);
+                Program.IsLocked = true;
                 await Clients.Caller.SendLockStatus(true);
             }
             else
@@ -95,7 +98,8 @@ namespace DotnetHub
 
         public async Task ReleaseLock()
         {
-            LockDataContext.SetLockState(false);
+            //LockDataContext.SetLockState(false);
+            Program.IsLocked = false;
             await Clients.Caller.SendLockStatus(false);
         }
 
